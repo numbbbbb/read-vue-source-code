@@ -22,7 +22,7 @@ You can also use `git clone git@github.com:vuejs/vue.git` if you like using cons
 > 
 > Don't worry, this series is aimed at telling you **how** to understand the source code. You can use the same methods even if the code is different.
 > 
-> You can also download [the version I use]() if you like.
+> You can also download [the version I use](https://github.com/numbbbbb/read-vue-source-code/blob/master/vue-2.3.4.zip) if you like.
 
 ## Open Your Editor
 
