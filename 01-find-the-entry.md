@@ -1,6 +1,6 @@
 # Find the Entry
 
-This article belongs to the series [Read Vue Source Code]().
+This article belongs to the series [Read Vue Source Code](https://github.com/numbbbbb/read-vue-source-code).
 
 In this article, we will:
 
