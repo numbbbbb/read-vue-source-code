@@ -45,7 +45,7 @@ Exciting? Here we go!
 ## Contents
 
 - [Find the Entry](https://github.com/numbbbbb/read-vue-source-code/blob/master/01-find-the-entry.md)
-- Dig into the Core
+- [Dig into the Core](https://github.com/numbbbbb/read-vue-source-code/blob/master/02-dig-into-the-core.md)
 - Initialization
 - Dynamic Data - Observer, Dep and Watcher
 - Dynamic Data - Lazy, Sync and Queue
