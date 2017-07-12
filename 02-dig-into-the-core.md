@@ -5,7 +5,7 @@ This article belongs to the series [Read Vue Source Code](https://github.com/num
 In this article, we will:
 
 - Find the real Vue implementation
-- Simulate the build process
+
 
 ## Find the Real Vue Code
 
