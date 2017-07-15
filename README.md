@@ -46,7 +46,7 @@ Exciting? Here we go!
 
 - [Find the Entry](https://github.com/numbbbbb/read-vue-source-code/blob/master/01-find-the-entry.md)
 - [Dig into the Core](https://github.com/numbbbbb/read-vue-source-code/blob/master/02-dig-into-the-core.md)
-- Initialization
+- [Initialization](https://github.com/numbbbbb/read-vue-source-code/blob/master/03-init-introduction.md)
 - Dynamic Data - Observer, Dep and Watcher
 - Dynamic Data - Lazy, Sync and Queue
 - View Rendering - Intruduction
