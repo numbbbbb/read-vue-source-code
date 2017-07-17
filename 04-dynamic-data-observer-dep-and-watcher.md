@@ -1,5 +1,7 @@
 # Dynamic Data - Observer, Dep and Watcher
 
+
+
 This article belongs to the series [Read Vue Source Code](https://github.com/numbbbbb/read-vue-source-code).
 
 In this article, we will learn:
@@ -21,7 +23,7 @@ I won't give you the entire structure now, cause I want to show you how I build 
 
 In the previous article, we have seen `defineReactive` which is used to make a value `reactive`. Let's see its usage in `defineReactive()`.
 
-![](media/14987231844897/14987249006603.jpg)
+![](http://i.imgur.com/1qHoCtG.jpg)
 
 Here are the key points:
 
@@ -43,7 +45,7 @@ Here we meet `Dep`, `observe()`, `dependArray()`, `depend()` and `notify()`.
 
 It's clear that `observe()` and `dependArray()` are helpers, let's read them first.
 
-![](media/14987231844897/14987250796320.jpg)
+![](http://i.imgur.com/p1TKC2S.jpg)
 
 `observe()` will extract the exist observer or create a new one with `new Observer(value)`. Notice that observe only works for an object, primitive value won't be observed.
 
@@ -51,7 +53,7 @@ If this value is used as root data, it will increments `ob.vmCount++`, we have t
 
 Okay, now we have got or created the watcher. Next, `dependArray()`.
 
-![](media/14987231844897/14987252090366.jpg)
+![](http://i.imgur.com/85sa8Gz.jpg)
 
 It just iterates the array recursively and calls `e.__ob__.dep.depend()` which leads us to `depend()` again.
 
@@ -61,7 +63,7 @@ If you use `defineReactive()` to convert a value, that reactive value has one `d
 
 Let's read `Observer()` now.
 
-![](media/14987231844897/14987257842948.jpg)
+![](http://i.imgur.com/YHSDSec.jpg)
 
 It first defines a `__ob__` property to the value you pass in. 
 
@@ -79,7 +81,7 @@ Our next target is `Dep()`.
 
 Open `./dep.js`, you can see this class has only four methods.
 
-![](media/14987231844897/14987262949778.jpg)
+![](http://i.imgur.com/hEoe7In.jpg)
 
 `addSub()`, `removeSub()` and `notify()` deal with watchers. Each `Dep` instance has an array to store its watchers and tell them to `update()` during `notify()`. We have seen that `notify()` will be called in a setter, so if you change a reactive property, it will trigger watchers' updating.
 
@@ -101,7 +103,7 @@ The `constructor` simply initials some variables, set your computed function or 
 
 Let's go on with `get()`, this is the only thing we get from `constructor()`.
 
-![](media/14987231844897/14987270615092.jpg)
+![](http://i.imgur.com/8bgITCW.jpg)
 
 Remember `Dep.target`? Here it calls `pushTarget()` and `popTarget()`, and do the evaluation between them!
 
@@ -143,7 +145,7 @@ And what `cleanupDeps` does? After reading the code, you can tell how it works t
 
 ---
 
-![](media/14987231844897/14987290096304.jpg)
+![](http://i.imgur.com/5BRYgfi.jpg)
 
 Above is the initialization of dynamic data net, this can help you understand the process.
 
