@@ -49,7 +49,7 @@ Exciting? Here we go!
 - [Initialization](https://github.com/numbbbbb/read-vue-source-code/blob/master/03-init-introduction.md)
 - [Dynamic Data - Observer, Dep and Watcher](https://github.com/numbbbbb/read-vue-source-code/blob/master/04-dynamic-data-observer-dep-and-watcher.md)
 - [Dynamic Data - Lazy, Sync and Queue](https://github.com/numbbbbb/read-vue-source-code/blob/master/05-dynamic-data-lazy-sync-and-queue.md)
-- View Rendering - Intruduction
+- [View Rendering - Intruduction](https://github.com/numbbbbb/read-vue-source-code/blob/master/06-view-render-introduction.md)
 - View Rendering - Compiler
 - View Rendering - Patch
 - Conclusion
