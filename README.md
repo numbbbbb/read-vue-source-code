@@ -51,7 +51,7 @@ Exciting? Here we go!
 - [Dynamic Data - Lazy, Sync and Queue](https://github.com/numbbbbb/read-vue-source-code/blob/master/05-dynamic-data-lazy-sync-and-queue.md)
 - [View Rendering - Intruduction](https://github.com/numbbbbb/read-vue-source-code/blob/master/06-view-render-introduction.md)
 - [View Rendering - Compiler](https://github.com/numbbbbb/read-vue-source-code/blob/master/07-view-render-compiler.md)
-- View Rendering - Patch
+- [View Rendering - Patch](https://github.com/numbbbbb/read-vue-source-code/blob/master/08-view-render-patch.md)
 - Conclusion
 
 ## License
