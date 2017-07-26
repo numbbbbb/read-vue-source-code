@@ -18,7 +18,7 @@ Open `./runtime/index`.
 `import Vue` again! Let's look through this file step-by-step:
 
 - import config
-- import util funcions
+- import util functions
 - import patch, mountComponent
 - import directives and components
 - install platform specific utils
