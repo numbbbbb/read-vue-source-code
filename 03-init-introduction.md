@@ -29,7 +29,7 @@ This file defines:
 
 ### stateMixin
 
-Open `./state,js`, this is a long file, search `statemixin`.
+Open `./state.js`, this is a long file, search `statemixin`.
 
 ![](http://i.imgur.com/ARnsKwC.jpg)
 
