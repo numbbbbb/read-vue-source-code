@@ -122,7 +122,7 @@ Imagine we have a component like this:
 }
 ```
 
-We know that the value of `data` will be converted to reactive property, and if you get data use `this.foo` it will be proxied to `this._data['foo']`.
+We know that the value of `data` will be converted to reactive property, and if you get data use `this.name` it will be proxied to `this._data['name']`.
 
 Now let's try to build a watcher step-by-step:
 
@@ -130,9 +130,9 @@ Now let's try to build a watcher step-by-step:
 - call `this.get()`
 - call `pushTarget(this)` which changes `Dep.target` to this watcher
 - call `this.getter.call(vm, vm)`
-- run `return this.foo + 'new!'`
-- because `this.foo` is proxied to `this._data[foo]`, the reactive value `_data`'s getter is triggered
-- inside the getter, it calls `dep.depend()`(no `childOd` because 'foo' is a primitive value)
+- run `return this.name + 'new!'`
+- because `this.name` is proxied to `this._data[name]`, the reactive value `_data`'s getter is triggered
+- inside the getter, it calls `dep.depend()`(no `childOd` because 'name' is a primitive value)
 - inside `depend()`, it calls `Dep.target.addDep(this)`, here `this` is `_data`'s dep, it's stored at `vm._data.__ob__.dep`
 - inside `addDep()`, the watcher add this dep to it's `this.newDepIds` and `this.newDeps`
 - because the default value of `this.depIds` is `[]`, the watcher calls `dep.addSub(this)`
