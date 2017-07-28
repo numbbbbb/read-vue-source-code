@@ -52,7 +52,7 @@ Exciting? Here we go!
 - [View Rendering - Intruduction](https://github.com/numbbbbb/read-vue-source-code/blob/master/06-view-render-introduction.md)
 - [View Rendering - Compiler](https://github.com/numbbbbb/read-vue-source-code/blob/master/07-view-render-compiler.md)
 - [View Rendering - Patch](https://github.com/numbbbbb/read-vue-source-code/blob/master/08-view-render-patch.md)
-- Conclusion
+- [Conclusion](https://github.com/numbbbbb/read-vue-source-code/blob/master/09-conclusion.md)
 
 ## License
 
