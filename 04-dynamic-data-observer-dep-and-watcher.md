@@ -133,7 +133,7 @@ Now let's try to build a watcher step-by-step:
 - run `return this.foo + 'new!'`
 - because `this.foo` is proxied to `this._data[foo]`, the reactive value `_data`'s getter is triggered
 - inside the getter, it calls `dep.depend()`(no `childOd` because 'foo' is a primitive value)
-- inside `depend()`, it calls `Dep.target.addDep(this)`, here `this` is `_data`'s dep, it's stored at `vm._data.__ob__.dep`
+- inside `depend()`, it calls `Dep.target.addDep(this)`, here `this` is `name`'s dep, it's stored at `vm._data.name.__ob__.dep`
 - inside `addDep()`, the watcher add this dep to it's `this.newDepIds` and `this.newDeps`
 - because the default value of `this.depIds` is `[]`, the watcher calls `dep.addSub(this)`
 - inside `addSub`, the dep add the watcher to it's `this.subs`
