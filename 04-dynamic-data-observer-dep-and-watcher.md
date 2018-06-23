@@ -21,7 +21,7 @@ I won't give you the entire structure now, cause I want to show you how I build 
 
 ## Observer
 
-In the previous article, we have seen `defineReactive` which is used to make a value `reactive`. Let's see its usage in `defineReactive()`.
+In the previous article, we have seen `defineReactive` which is used to make a property `reactive`. Let's see its usage in `defineReactive()`.
 
 ![](http://i.imgur.com/1qHoCtG.jpg)
 
@@ -59,7 +59,7 @@ It just iterates the array recursively and calls `e.__ob__.dep.depend()` which l
 
 So now we have found the usage of `Dep()`, `Observer()`, `Watcher()`. And `dep.depend()`, `dep.notify()`.
 
-If you use `defineReactive()` to convert a value, that reactive value has one `dep` and one `childOb` set by `observe(val)` if the value is object.
+If you use `defineReactive()` to convert a property, that reactive property has one `dep` and one `childOb` set by `observe(val)` if the value is object.
 
 Let's read `Observer()` now.
 
@@ -71,9 +71,29 @@ Then if the value is an array, it will intercept array methods(like `push`, `pop
 
 If the value is not an array, this function just walks through all keys and use `defineReactive()` to convert all values into a reactive property.
 
-As you can see, `defineReactive()` calls `new Observer()`, `Observer()` may also call `defineReactive()`. Thus, when you want to convert a value with `defineReactive()`, it will recursively converts all sub values into reactive property.
+As you can see, `defineReactive()` calls `new Observer()`, `Observer()` may also call `defineReactive()`. Thus, when you want to convert a property with `defineReactive()`, it will recursively converts all sub properties into reactive property.
 
-In short, `Observer` will add a `dep` to the value and all it's sub values while wrapping their getter and setter to trigger dep.
+**To be clear, we use `defineReactive()` to create reactive PROPERTY, and we use `observe()` to create Observer for the VALUE of that PROPERTY(if the value is object).**
+
+The reason is simple. If the value is an object, change the property of that object won't trigger the setter of property. Property only save the reference to that object in memory, change the content of that object won't affect it's memory address, thus won't really change the property's value.
+
+If we have a `data` like this:
+
+```
+data: {
+  name: 'foo',
+  parents: {
+    mom: 'foomom',
+    dad: 'foodad'
+  }
+}
+```
+
+After calling `defineReactive(vm._data)`, we got this:
+
+![](https://i.imgur.com/a/1PBYsOG.jpg)
+
+Give yourself some time to fully understand it.
 
 Our next target is `Dep()`.
 
@@ -122,7 +142,7 @@ Imagine we have a component like this:
 }
 ```
 
-We know that the value of `data` will be converted to reactive property, and if you get data use `this.foo` it will be proxied to `this._data['foo']`.
+We know that `data` will be converted to reactive property, it's value, the object will be observed. If you get data use `this.foo` it will be proxied to `this._data['foo']`.
 
 Now let's try to build a watcher step-by-step:
 
@@ -131,9 +151,10 @@ Now let's try to build a watcher step-by-step:
 - call `pushTarget(this)` which changes `Dep.target` to this watcher
 - call `this.getter.call(vm, vm)`
 - run `return this.foo + 'new!'`
-- because `this.foo` is proxied to `this._data[foo]`, the reactive value `_data`'s getter is triggered
-- inside the getter, it calls `dep.depend()`(no `childOd` because 'foo' is a primitive value)
-- inside `depend()`, it calls `Dep.target.addDep(this)`, here `this` refers to the `dep` property of object `_data`'s observer, it's stored at `vm._data.__ob__.dep`
+- because `this.foo` is proxied to `this._data[foo]`, the reactive property `_data`'s getter is triggered
+- inside the getter, it calls `dep.depend()`
+- inside `depend()`, it calls `Dep.target.addDep(this)`, here `this` refers to the const `dep`, it's `_data`'s dep
+- then it calls `childOb.dep.depend()` which add the dep of `childOb` to our target. Notice this time the `this` of `Dep.target.addDep(this)` refers to `childOb.__ob__.dep`
 - inside `addDep()`, the watcher add this dep to it's `this.newDepIds` and `this.newDeps`
 - because the default value of `this.depIds` is `[]`, the watcher calls `dep.addSub(this)`
 - inside `addSub`, the dep add the watcher to it's `this.subs`
