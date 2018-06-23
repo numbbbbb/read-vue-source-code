@@ -91,7 +91,7 @@ data: {
 
 After calling `defineReactive(vm._data)`, we got this:
 
-![](https://i.imgur.com/a/1PBYsOG.jpg)
+![](//i.imgur.com/8i9c83v.jpg)
 
 Give yourself some time to fully understand it.
 
