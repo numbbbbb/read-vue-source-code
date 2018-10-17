@@ -258,6 +258,8 @@ I'm not intend to tell you everything, so I suggest you read the whole init proc
 
 This article shows the whole initialization process. After initialization, data can be modified, views will also sync with data. How does Vue implement the data updating process? Next article will reveal it.
 
+Read next chapter: [Dynamic Data - Observer, Dep and Watcher](https://github.com/numbbbbb/read-vue-source-code/blob/master/04-dynamic-data-observer-dep-and-watcher.md).
+
 ## Practice
 
 ```
