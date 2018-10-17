@@ -162,6 +162,8 @@ You may ask, what would happen if the computed watcher is `lazy`? I will leave t
 
 We have learned three updating ways and how to keep the correct updating order. But these all happen "inside", how does Vue apply the updating to DOM? How to convert your `.vue` files into browser executable code? Next several articles will talk about the entire render process.
 
+Read next chapter: [View Rendering - Intruduction](https://github.com/numbbbbb/read-vue-source-code/blob/master/06-view-render-introduction.md).
+
 ## Practice
 
 Try to tell how Vue keeps the correct updating order if the computed watcher is `lazy`.
