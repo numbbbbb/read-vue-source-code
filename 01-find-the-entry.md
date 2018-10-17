@@ -108,6 +108,8 @@ The two important points are:
 
 Now you know how to find the entry of a brand new project. In next article, we will go on to find the core code of Vue.
 
+Read next chapter: [Dig into the Core](https://github.com/numbbbbb/read-vue-source-code/blob/master/02-dig-into-the-core.md).
+
 ## Practice
 
 Remember those "util functions"? Read their codes and tell what they do. It's not difficult, but you need to be patient. 
