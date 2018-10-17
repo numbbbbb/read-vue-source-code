@@ -235,6 +235,8 @@ Now you know what compiler is, how it compiles template to the final render "fun
 
 In next article, we will turn to the browser and see how Vue uses the generated `render` function and `__patch__()` to update your webpage.
 
+Read next chapter: [View Rendering - Patch](https://github.com/numbbbbb/read-vue-source-code/blob/master/08-view-render-patch.md).
+
 ## Practice
 
 Find the definition of `vm._c`, trace the origin implementation and tell what is returned by executing this function.
