@@ -88,6 +88,8 @@ Render process starts when `mountComponent()` is called. It will call `_render()
 
 Next two articles will talk about **compiler** and **patch**, you will see how VDom is designed and how to do the diff calculation fastly.
 
+Read next chapter: [View Rendering - Compiler](https://github.com/numbbbbb/read-vue-source-code/blob/master/07-view-render-compiler.md).
+
 ## Practice
 
 ```
