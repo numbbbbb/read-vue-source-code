@@ -124,6 +124,8 @@ Congratulations! You have walked though almost all important parts of Vue. Entry
 
 So what's next? Check it out by yourself.
 
+Read next chapter: [Conclusion](https://github.com/numbbbbb/read-vue-source-code/blob/master/09-conclusion.md).
+
 ## Practice
 
 Continue simulating the execution of `updateChildren()` until you really understand it.
