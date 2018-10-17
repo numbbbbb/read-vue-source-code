@@ -71,6 +71,8 @@ This layer pattern reminds me of OSI layer model, maybe Vue's author is inspired
 
 Vue's core function just calls `this._init()`. What does it do? We will reveal it in next article.
 
+Read next chapter: [Initialization](https://github.com/numbbbbb/read-vue-source-code/blob/master/03-init-introduction.md).
+
 ## Practice
 
 Find a friend and try to explain Vue's layer pattern to him/her.
