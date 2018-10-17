@@ -176,6 +176,8 @@ If reactive property changes, it just triggers this process again to refresh com
 
 Now we know how to build the dynamic data net. Next article will focus on three watcher updating ways and discuss how Vue keeps the correct updating order.
 
+Read next chapter: [Dynamic Data - Lazy, Sync and Queue](https://github.com/numbbbbb/read-vue-source-code/blob/master/05-dynamic-data-lazy-sync-and-queue.md).
+
 ## Practice
 
 Read the `cleanupDeps` method in `./watcher.js` and tell how this method updates the dependency during `get()` process.
