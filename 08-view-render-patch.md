@@ -39,19 +39,86 @@ With this clear structure and data in the console, you can understand the implem
 
 Recall this function in `mountComponent`.
 
-![](http://i.imgur.com/wfyGaHG.jpg)
+```javascript
+updateComponent = () => {
+  vm._update(vm._render(), hydrating)
+}
+```
 
-After executing `vm_render()`, we can go into `vm._update()`.
+After executing `vm._render()`, we can go into `vm._update()`.
 
-![](http://i.imgur.com/NAnKb2Z.jpg)
+```javascript
+Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
+  const vm: Component = this
+  if (vm._isMounted) {
+    callHook(vm, 'beforeUpdate')
+  }
+  const prevEl = vm.$el
+  const prevVnode = vm._vnode
+  const prevActiveInstance = activeInstance
+  activeInstance = vm
+  vm._vnode = vnode
+  // Vue.prototype.__patch__ is injected in entry points
+  // based on the rendering backend used.
+  if (!prevVnode) {
+    // initial render
+    vm.$el = vm.__patch__(
+      vm.$el, vnode, hydrating, false /* removeOnly */,
+      vm.$options._parentElm,
+      vm.$options._refElm
+    )
+  } else {
+    // updates
+    vm.$el = vm.__patch__(prevVnode, vnode)
+  }
+  activeInstance = prevActiveInstance
+  // update __vue__ reference
+  if (prevEl) {
+    prevEl.__vue__ = null
+  }
+  if (vm.$el) {
+    vm.$el.__vue__ = vm
+  }
+  // if parent is an HOC, update its $el as well
+  if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+    vm.$parent.$el = vm.$el
+  }
+  // updated hook is called by the scheduler to ensure that children are
+  // updated in a parent's updated hook.
+}
+```
 
 `vm.__patch__()` is the key part. If this is a new node, it will initial the DOM, otherwise, it will update the DOM. Both are implemented inside `vm.__patch__()` with the VNodes we got from `render()`.
 
 Now use the skills you learn from previous articles to find the definition of `__patch__()`. It's located in `platforms/web/runtime/patch.js`, created by `createPatchFunction({ nodeOps, modules })`.
 
-Trace `nodeOps` and `modules`, you can find `nodeOps` are real DOM operations, like this:
+Trace `nodeOps` and `modules`, you can find `nodeOps` are real DOM operations, like these:
 
-![](http://i.imgur.com/IYWU0vC.jpg)
+```javascript
+export function createElementNS (namespace: string, tagName: string): Element {
+  return document.createElementNS(namespaceMap[namespace], tagName)
+}
+
+export function createTextNode (text: string): Text {
+  return document.createTextNode(text)
+}
+
+export function createComment (text: string): Comment {
+  return document.createComment(text)
+}
+
+export function insertBefore (parentNode: Node, newNode: Node, referenceNode: Node) {
+  parentNode.insertBefore(newNode, referenceNode)
+}
+
+export function removeChild (node: Node, child: Node) {
+  node.removeChild(child)
+}
+
+export function appendChild (node: Node, child: Node) {
+  node.appendChild(child)
+}
+```
 
 `modules` are operations related to DOM node, like `setAttr`, `updateClass`, `updateStyle`.
 
@@ -74,6 +141,58 @@ After reading `createPatchFunction()` and `patch()` inside it, we find that `pat
 The core function of `update` is `patchVnode()`.
 
 ![](http://i.imgur.com/CKxi6L6.jpg)
+
+Implement of `patchVnode()`:
+
+```javascript
+function patchVnode (oldVnode, vnode, insertedVnodeQueue, removeOnly) {
+  if (oldVnode === vnode) {
+    return
+  }
+  // reuse element for static trees.
+  // note we only do this if the vnode is cloned -
+  // if the new node is not cloned it means the render functions have been
+  // reset by the hot-reload-api and we need to do a proper re-render.
+  if (isTrue(vnode.isStatic) &&
+    isTrue(oldVnode.isStatic) &&
+    vnode.key === oldVnode.key &&
+    (isTrue(vnode.isCloned) || isTrue(vnode.isOnce))
+  ) {
+    vnode.elm = oldVnode.elm
+    vnode.componentInstance = oldVnode.componentInstance
+    return
+  }
+  let i
+  const data = vnode.data
+  if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+    i(oldVnode, vnode)
+  }
+  const elm = vnode.elm = oldVnode.elm
+  const oldCh = oldVnode.children
+  const ch = vnode.children
+  if (isDef(data) && isPatchable(vnode)) {
+    for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+    if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
+  }
+  if (isUndef(vnode.text)) {
+    if (isDef(oldCh) && isDef(ch)) {
+      if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
+    } else if (isDef(ch)) {
+      if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+      addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
+    } else if (isDef(oldCh)) {
+      removeVnodes(elm, oldCh, 0, oldCh.length - 1)
+    } else if (isDef(oldVnode.text)) {
+      nodeOps.setTextContent(elm, '')
+    }
+  } else if (oldVnode.text !== vnode.text) {
+    nodeOps.setTextContent(elm, vnode.text)
+  }
+  if (isDef(data)) {
+    if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
+  }
+}
+```
 
 Here is the real patch part.
 
