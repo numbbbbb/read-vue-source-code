@@ -41,7 +41,7 @@ It's a common question for big open source projects. Vue is a npm package, so we
 ```json
 {
   "name": "vue",
-  "version": "2.3.4",
+  "version": "2.3.3",
   "description": "Reactive, component-oriented view layer for modern web interfaces.",
   "main": "dist/vue.runtime.common.js",
   "module": "dist/vue.runtime.esm.js",
@@ -93,7 +93,7 @@ Now we have `build/config.js` and `TARGET:web-full-dev`. Open `build/config.js` 
 
 Great! 
 
-This is the config of dev building. It's entry is `web/entry-runtime-with-compiler.js`. But wait, where is the `web/` directory?
+This is the config of dev building. It's entry is `web/runtime-with-compiler.js`. But wait, where is the `web/` directory?
 
 Check the entry value again, there is a `resolve`. Search `resolve`:
 
@@ -110,9 +110,9 @@ const resolve = p => {
 ```
 
 
-Go through `resolve('web/entry-runtime-with-compiler.js')` with the parameters we have:
+Go through `resolve('web/runtime-with-compiler.js')` with the parameters we have:
 
-- p is `web/entry-runtime-with-compiler.js`
+- p is `web/runtime-with-compiler.js`
 - base is `web`
 - convert the directory to `alias['web']`
 
