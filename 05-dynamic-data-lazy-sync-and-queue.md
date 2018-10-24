@@ -260,7 +260,7 @@ How to make sure all data and views update in the correct order?
 
 Let's see a small example:
 
-```
+```vue
 <div id="app">
   {{ newName }}
 </div>
