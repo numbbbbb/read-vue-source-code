@@ -13,7 +13,78 @@ We have found the entry at [previous article](https://github.com/numbbbbb/read-v
 
 Open `./runtime/index`.
 
-![](http://i.imgur.com/SNWZ60U.jpg)
+```javascript
+/* @flow */
+
+import Vue from 'core/index'
+import config from 'core/config'
+import { extend, noop } from 'shared/util'
+import { mountComponent } from 'core/instance/lifecycle'
+import { devtools, inBrowser, isChrome } from 'core/util/index'
+
+import {
+  query,
+  mustUseProp,
+  isReservedTag,
+  isReservedAttr,
+  getTagNamespace,
+  isUnknownElement
+} from 'web/util/index'
+
+import { patch } from './patch'
+import platformDirectives from './directives/index'
+import platformComponents from './components/index'
+
+// install platform specific utils
+Vue.config.mustUseProp = mustUseProp
+Vue.config.isReservedTag = isReservedTag
+Vue.config.isReservedAttr = isReservedAttr
+Vue.config.getTagNamespace = getTagNamespace
+Vue.config.isUnknownElement = isUnknownElement
+
+// install platform runtime directives & components
+extend(Vue.options.directives, platformDirectives)
+extend(Vue.options.components, platformComponents)
+
+// install platform patch function
+Vue.prototype.__patch__ = inBrowser ? patch : noop
+
+// public mount method
+Vue.prototype.$mount = function (
+  el?: string | Element,
+  hydrating?: boolean
+): Component {
+  el = el && inBrowser ? query(el) : undefined
+  return mountComponent(this, el, hydrating)
+}
+
+// devtools global hook
+/* istanbul ignore next */
+setTimeout(() => {
+  if (config.devtools) {
+    if (devtools) {
+      devtools.emit('init', Vue)
+    } else if (process.env.NODE_ENV !== 'production' && isChrome) {
+      console[console.info ? 'info' : 'log'](
+        'Download the Vue Devtools extension for a better development experience:\n' +
+        'https://github.com/vuejs/vue-devtools'
+      )
+    }
+  }
+  if (process.env.NODE_ENV !== 'production' &&
+    config.productionTip !== false &&
+    inBrowser && typeof console !== 'undefined'
+  ) {
+    console[console.info ? 'info' : 'log'](
+      `You are running Vue in development mode.\n` +
+      `Make sure to turn on production mode when deploying for production.\n` +
+      `See more tips at https://vuejs.org/guide/deployment.html`
+    )
+  }
+}, 0)
+
+export default Vue
+```
 
 `import Vue` again! Let's look through this file step-by-step:
 
@@ -36,9 +107,33 @@ Two important points here:
 
 After checking the Vue directory, we can find there is another platform `weex`. It's a framework similar to ReactNative and it's maintained by Alibaba.
 
-Go on with our new clue `import Vue from 'core/index'`.
+Go on with our new clue `import Vue from 'core/index'`, again it `import Vue from './instance/index'`, open `./instance/index`.
 
-![](http://i.imgur.com/qeY5n53.jpg)
+```javascript
+import { initMixin } from './init'
+import { stateMixin } from './state'
+import { renderMixin } from './render'
+import { eventsMixin } from './events'
+import { lifecycleMixin } from './lifecycle'
+import { warn } from '../util/index'
+
+function Vue (options) {
+  if (process.env.NODE_ENV !== 'production' &&
+    !(this instanceof Vue)
+  ) {
+    warn('Vue is a constructor and should be called with the `new` keyword')
+  }
+  this._init(options)
+}
+
+initMixin(Vue)
+stateMixin(Vue)
+eventsMixin(Vue)
+lifecycleMixin(Vue)
+renderMixin(Vue)
+
+export default Vue
+```
 
 `function Vue (options) {`! We made it! This is the core Vue implementation.
 
