@@ -22,7 +22,7 @@ You can also use `git clone git@github.com:vuejs/vue.git` if you like using cons
 > 
 > Don't worry, this series is aimed at telling you **how** to understand the source code. You can use the same methods even if the code is different.
 > 
-> You can also download [the version I use](https://github.com/numbbbbb/read-vue-source-code/blob/master/vue-2.3.3.zip) if you like.
+> You can also download [the version I use](https://github.com/numbbbbb/read-vue-source-code/blob/master/vue.zip) if you like.
 
 ## Open Your Editor
 
@@ -82,7 +82,7 @@ Now we have `build/config.js` and `TARGET:web-full-dev`. Open `build/config.js` 
 ```javascript
 // Runtime+compiler development build (Browser)
 'web-full-dev': {
-  entry: resolve('web/runtime-with-compiler.js'),
+  entry: resolve('web/entry-runtime-with-compiler.js'),
   dest: resolve('dist/vue.js'),
   format: 'umd',
   env: 'development',
@@ -93,7 +93,7 @@ Now we have `build/config.js` and `TARGET:web-full-dev`. Open `build/config.js` 
 
 Great! 
 
-This is the config of dev building. It's entry is `web/runtime-with-compiler.js`. But wait, where is the `web/` directory?
+This is the config of dev building. It's entry is `web/entry-runtime-with-compiler.js`. But wait, where is the `web/` directory?
 
 Check the entry value again, there is a `resolve`. Search `resolve`:
 
@@ -110,9 +110,9 @@ const resolve = p => {
 ```
 
 
-Go through `resolve('web/runtime-with-compiler.js')` with the parameters we have:
+Go through `resolve('web/entry-runtime-with-compiler.js')` with the parameters we have:
 
-- p is `web/runtime-with-compiler.js`
+- p is `web/entry-runtime-with-compiler.js`
 - base is `web`
 - convert the directory to `alias['web']`
 
@@ -120,7 +120,7 @@ Let's jump to `alias` to find `alias['web']`.
 
 ```javascript
 module.exports = {
-  vue: path.resolve(__dirname, '../src/platforms/web/runtime-with-compiler'),
+  vue: path.resolve(__dirname, '../src/platforms/web/entry-runtime-with-compiler'),
   compiler: path.resolve(__dirname, '../src/compiler'),
   core: path.resolve(__dirname, '../src/core'),
   shared: path.resolve(__dirname, '../src/shared'),
@@ -132,7 +132,7 @@ module.exports = {
 }
 ```
 
-Okay, it's `src/platforms/web`. Concat it with the input file name, we get `src/platforms/web/runtime-with-compiler.js`.
+Okay, it's `src/platforms/web`. Concat it with the input file name, we get `src/platforms/web/entry-runtime-with-compiler.js`.
 
 ```javascript
 /* @flow */
@@ -165,6 +165,31 @@ Vue.prototype.$mount = function (
     )
     return this
   }
+
+  const options = this.$options
+  // resolve template/el and convert to render function
+  if (!options.render) {
+    let template = options.template
+    if (template) {
+      if (typeof template === 'string') {
+        if (template.charAt(0) === '#') {
+          template = idToTemplate(template)
+          /* istanbul ignore if */
+          if (process.env.NODE_ENV !== 'production' && !template) {
+            warn(
+              `Template element not found or is empty: ${options.template}`,
+              this
+            )
+          }
+        }
+      } else if (template.nodeType) {
+        template = template.innerHTML
+      } else {
+        if (process.env.NODE_ENV !== 'production') {
+          warn('invalid template option:' + template, this)
+        }
+        return this
+      }
   ...
 ```
 
