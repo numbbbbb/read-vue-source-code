@@ -80,15 +80,15 @@ rollup -w -c build/config.js --environment TARGET:web-full-dev
 Now we have `build/config.js` and `TARGET:web-full-dev`. Open `build/config.js` and search `web-full-dev`:
 
 ```javascript
-  // Runtime+compiler development build (Browser)
-  'web-full-dev': {
-    entry: resolve('web/runtime-with-compiler.js'),
-    dest: resolve('dist/vue.js'),
-    format: 'umd',
-    env: 'development',
-    alias: { he: './entity-decoder' },
-    banner
-  },
+// Runtime+compiler development build (Browser)
+'web-full-dev': {
+  entry: resolve('web/runtime-with-compiler.js'),
+  dest: resolve('dist/vue.js'),
+  format: 'umd',
+  env: 'development',
+  alias: { he: './entity-decoder' },
+  banner
+},
 ```
 
 Great! 
