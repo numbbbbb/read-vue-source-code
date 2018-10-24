@@ -38,7 +38,28 @@ Now we meet our first question: where should we start?
 
 It's a common question for big open source projects. Vue is a npm package, so we can open `package.json` first.
 
-![](http://i.imgur.com/YFW6HYF.jpg)
+```json
+{
+  "name": "vue",
+  "version": "2.3.4",
+  "description": "Reactive, component-oriented view layer for modern web interfaces.",
+  "main": "dist/vue.runtime.common.js",
+  "module": "dist/vue.runtime.esm.js",
+  "unpkg": "dist/vue.js",
+  "typings": "types/index.d.ts",
+  "files": [
+    "src",
+    "dist/*.js",
+    "types/*.d.ts"
+  ],
+  "scripts": {
+    "dev": "rollup -w -c build/config.js --environment TARGET:web-full-dev",
+    "dev:cjs": "rollup -w -c build/config.js --environment TARGET:web-runtime-cjs",
+    "dev:esm": "rollup -w -c build/config.js --environment TARGET:web-runtime-esm",
+    "dev:test": "karma start build/karma.dev.config.js",
+    "dev:ssr": "rollup -w -c build/config.js --environment TARGET:web-server-renderer",
+    ...
+```
 
 First three keys are `name`, `version` and `description`, no need to explain.
 
@@ -58,7 +79,17 @@ rollup -w -c build/config.js --environment TARGET:web-full-dev
 
 Now we have `build/config.js` and `TARGET:web-full-dev`. Open `build/config.js` and search `web-full-dev`:
 
-![](http://i.imgur.com/prmDkBG.jpg)
+```javascript
+  // Runtime+compiler development build (Browser)
+  'web-full-dev': {
+    entry: resolve('web/runtime-with-compiler.js'),
+    dest: resolve('dist/vue.js'),
+    format: 'umd',
+    env: 'development',
+    alias: { he: './entity-decoder' },
+    banner
+  },
+```
 
 Great! 
 
@@ -66,7 +97,17 @@ This is the config of dev building. It's entry is `web/entry-runtime-with-compil
 
 Check the entry value again, there is a `resolve`. Search `resolve`:
 
-![](http://i.imgur.com/8OlC2XC.jpg)
+```javascript
+const aliases = require('./alias')
+const resolve = p => {
+  const base = p.split('/')[0]
+  if (aliases[base]) {
+    return path.resolve(aliases[base], p.slice(base.length + 1))
+  } else {
+    return path.resolve(__dirname, '../', p)
+  }
+}
+```
 
 
 Go through `resolve('web/entry-runtime-with-compiler.js')` with the parameters we have:
@@ -77,11 +118,55 @@ Go through `resolve('web/entry-runtime-with-compiler.js')` with the parameters w
 
 Let's jump to `alias` to find `alias['web']`.
 
-![](http://i.imgur.com/RGG2thw.jpg)
+```javascript
+module.exports = {
+  vue: path.resolve(__dirname, '../src/platforms/web/runtime-with-compiler'),
+  compiler: path.resolve(__dirname, '../src/compiler'),
+  core: path.resolve(__dirname, '../src/core'),
+  shared: path.resolve(__dirname, '../src/shared'),
+  web: path.resolve(__dirname, '../src/platforms/web'),
+  weex: path.resolve(__dirname, '../src/platforms/weex'),
+  server: path.resolve(__dirname, '../src/server'),
+  entries: path.resolve(__dirname, '../src/entries'),
+  sfc: path.resolve(__dirname, '../src/sfc')
+}
+```
 
-Okay, it's `src/platforms/web`. Concat it with the input file name, we get `src/platforms/web/entry-runtime-with-compiler.js`.
+Okay, it's `src/platforms/web`. Concat it with the input file name, we get `src/platforms/web/runtime-with-compiler.js`.
 
-![](http://i.imgur.com/EgfmC7A.jpg)
+```javascript
+/* @flow */
+
+import config from 'core/config'
+import { warn, cached } from 'core/util/index'
+import { mark, measure } from 'core/util/perf'
+
+import Vue from './runtime/index'
+import { query } from './util/index'
+import { shouldDecodeNewlines } from './util/compat'
+import { compileToFunctions } from './compiler/index'
+
+const idToTemplate = cached(id => {
+  const el = query(id)
+  return el && el.innerHTML
+})
+
+const mount = Vue.prototype.$mount
+Vue.prototype.$mount = function (
+  el?: string | Element,
+  hydrating?: boolean
+): Component {
+  el = el && query(el)
+
+  /* istanbul ignore if */
+  if (el === document.body || el === document.documentElement) {
+    process.env.NODE_ENV !== 'production' && warn(
+      `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
+    )
+    return this
+  }
+  ...
+```
 
 Cool! You have found the entry!
 
