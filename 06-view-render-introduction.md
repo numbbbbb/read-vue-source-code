@@ -100,7 +100,7 @@ Inside `_render()`, it calls `render()` which is extracted from `vm.$options`.
 
 After global searching `$option`, we find:
 
-```
+```javascript
 vm.$options = mergeOptions(
   resolveConstructorOptions(vm.constructor),
   options || {},
@@ -135,7 +135,7 @@ Cool! This is the outmost wrapper of `$mount()`, it calls `compileToFunctions()`
 
 Go on, `compileToFunctions()` comes from `./compiler/index.js`:
 
-```
+```javascript
 const { compile, compileToFunctions } = createCompiler(baseOptions)
 
 export { compile, compileToFunctions }
@@ -191,7 +191,7 @@ Read next chapter: [View Rendering - Compiler](https://github.com/numbbbbb/read-
 
 ## Practice
 
-```
+```javascript
 vnode = render.call(vm._renderProxy, vm.$createElement)
 ```
 
