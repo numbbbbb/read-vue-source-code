@@ -85,7 +85,7 @@ export function defineReactive (
 
 Here are the key points:
 
-```
+```javascript
 const dep = new Dep()
 let childOb = observe(val)
 
@@ -227,7 +227,7 @@ The reason is simple. If the value is an object, change the property of that obj
 
 If we have a `data` like this:
 
-```
+```javascript
 data: {
   name: 'foo',
   parents: {
@@ -325,7 +325,7 @@ Remember `Dep.target`? Here it calls `pushTarget()` and `popTarget()`, and do th
 
 Imagine we have a component like this:
 
-```
+```javascript
 {
   data: {
     name: 'foo'
