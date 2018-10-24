@@ -20,7 +20,22 @@ Remember that when you update a reactive property, the setter will be called and
 
 So we can go directly to `update()`.
 
-![](http://i.imgur.com/4U2J8Ue.jpg)
+```javascript
+/**
+ * Subscriber interface.
+ * Will be called when a dependency changes.
+ */
+update () {
+  /* istanbul ignore else */
+  if (this.lazy) {
+    this.dirty = true
+  } else if (this.sync) {
+    this.run()
+  } else {
+    queueWatcher(this)
+  }
+}
+```
 
 This `if-else` statement has three clauses, let's look through them one by one.
 
@@ -32,7 +47,16 @@ Let's find out where `dirty` is used.
 
 Search `dirty`, you got:
 
-![](http://i.imgur.com/WY4aCZF.jpg)
+```javascript
+/**
+ * Evaluate the value of the watcher.
+ * This only gets called for lazy watchers.
+ */
+evaluate () {
+  this.value = this.get()
+  this.dirty = false
+}
+```
 
 When `evaluate()` is called, it calls `this.get()` to get the real value and set `dirty` to `false`. Where is `evaluate()` called? Let's do a global search.
 
@@ -48,17 +72,82 @@ The first result calls `watcher.evaluate()`, double click that line to jump to t
 
 ![](http://i.imgur.com/qcP4R3w.jpg)
 
+Code: 
+
+```javascript
+function createComputedGetter (key) {
+  return function computedGetter () {
+    const watcher = this._computedWatchers && this._computedWatchers[key]
+    if (watcher) {
+      if (watcher.dirty) {
+        watcher.evaluate()
+      }
+      if (Dep.target) {
+        watcher.depend()
+      }
+      return watcher.value
+    }
+  }
+}
+```
+
 Got it. When computed property's getter is called, if the watcher is dirty, it will do the evaluation. Use lazy mode can put off the evaluation until you really need the value.
 
 ### Sync
 
 Go back to our second `if-else` clause.
 
-![](http://i.imgur.com/4U2J8Ue.jpg)
+```javascript
+/**
+ * Subscriber interface.
+ * Will be called when a dependency changes.
+ */
+update () {
+  /* istanbul ignore else */
+  if (this.lazy) {
+    this.dirty = true
+  } else if (this.sync) {
+    this.run()
+  } else {
+    queueWatcher(this)
+  }
+}
+```
 
 If this watcher's `sync` is `true`, it will call `this.run()`. Search `run`.
 
-![](http://i.imgur.com/BEHuDQM.jpg)
+```javascript
+/**
+ * Scheduler job interface.
+ * Will be called by the scheduler.
+ */
+run () {
+  if (this.active) {
+    const value = this.get()
+    if (
+      value !== this.value ||
+      // Deep watchers and watchers on Object/Arrays should fire even
+      // when the value is the same, because the value may
+      // have mutated.
+      isObject(value) ||
+      this.deep
+    ) {
+      // set new value
+      const oldValue = this.value
+      this.value = value
+      if (this.user) {
+        try {
+          this.cb.call(this.vm, value, oldValue)
+        } catch (e) {
+          handleError(e, this.vm, `callback for watcher "${this.expression}"`)
+        }
+      } else {
+        this.cb.call(this.vm, value, oldValue)
+      }
+    }
+  }
+}
+```
 
 This function calls `this.get()`. If the value changes or it's an object or this watcher is deep, the old value will be replaced and the callback function will be called.
 
@@ -68,11 +157,54 @@ Sync mode is easy to understand, but unfortunately, it's `false` by default. The
 
 ### Queue
 
-![](http://i.imgur.com/4U2J8Ue.jpg)
+```javascript
+/**
+ * Subscriber interface.
+ * Will be called when a dependency changes.
+ */
+update () {
+  /* istanbul ignore else */
+  if (this.lazy) {
+    this.dirty = true
+  } else if (this.sync) {
+    this.run()
+  } else {
+    queueWatcher(this)
+  }
+}
+```
 
 If your watcher is neither lazy nor sync, the execution will flow to `queueWatcher(this)`.
 
-![](http://i.imgur.com/ANzbFqj.jpg)
+```javascript
+/**
+ * Push a watcher into the watcher queue.
+ * Jobs with duplicate IDs will be skipped unless it's
+ * pushed when the queue is being flushed.
+ */
+export function queueWatcher (watcher: Watcher) {
+  const id = watcher.id
+  if (has[id] == null) {
+    has[id] = true
+    if (!flushing) {
+      queue.push(watcher)
+    } else {
+      // if already flushing, splice the watcher based on its id
+      // if already past its id, it will be run next immediately.
+      let i = queue.length - 1
+      while (i > index && queue[i].id > watcher.id) {
+        i--
+      }
+      queue.splice(i + 1, 0, watcher)
+    }
+    // queue the flush
+    if (!waiting) {
+      waiting = true
+      nextTick(flushSchedulerQueue)
+    }
+  }
+}
+```
 
 If the queue isn't flushing now, it simply pushes the watcher into the queue.
 
@@ -101,6 +233,16 @@ Let's use global searching again. What's the keyword? Remember we have met `_upd
 Seems the `updateComponent` in the first result is what we need, double click it.
 
 ![](http://i.imgur.com/2V83kfm.jpg)
+
+Code:
+
+```javascript
+  } else {
+    updateComponent = () => {
+    vm._update(vm._render(), hydrating)
+  }
+}
+```
 
 Here it is! We are right, Vue creates a Watcher for `updateComponent`. These lines are inside `mountComponent`, and `mountComponent` is the core of `$mount`. So after initializing the component, Vue will call `$mount` and inside it, the Watcher is created.
 
