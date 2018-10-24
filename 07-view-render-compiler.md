@@ -47,7 +47,7 @@ In order to get the AST, we need to modify Vue's source code.
 
 If you use Git to clone Vue, the default branch is `dev`, which will generate this error if you build Vue files and use them in your project:
 
-```
+```bash
 - vue@2.3.3
 - vue-template-compiler@2.3.4
 
@@ -56,7 +56,7 @@ This may cause things to work incorrectly. Make sure to use the same version for
 
 We need to go master branch, checkout the latest release and build:
 
-```
+```bash
 git checkout master
 git pull
 git checkout v2.3.4
@@ -79,7 +79,7 @@ const code = generate(ast, options)
 
 Here is a small demo written in `.vue` file:
 
-```
+```vue
 <template>
   <div id="app">
     {{ newName ? newName + 'true' : newName + 'false' }}
@@ -108,7 +108,7 @@ If you write `<template>` tag inside your normal HTML file, Vue will compile it 
 
 Run `npm run build` to generate the modified Vue project. Copy `package/vue-template-compiler/build.js` to our demo's `node_modules/vue-template-compiler`, then use the modified vue-template-compiler to build it. I got this in my terminal:
 
-```
+```javascript
 {  
   type:1,
   tag:'div',
@@ -176,7 +176,7 @@ const code = generate(ast, options)
 
 Below is the output of the second `console.log()`:
 
-```
+```javascript
 {  
   type:1,
   tag:'div',
@@ -250,7 +250,7 @@ console.log(code) // <-- ADD THIS LINE
 ```
 
 
-```
+```javascript
 {  
   render:'with(this){return _c(\'div\',{attrs:{"id":"app"}},[_v("\\n  "+_s(newName ? newName + \'true\' : newName + \'false\')+"\\n  "),_c(\'span\',[_v("This is static node")])])}',
   staticRenderFns:[  
