@@ -159,7 +159,7 @@ The important thing here is how to divide and organize a bunch of functions. How
 
 After looking the static parts, now we go back to the core.
 
-```
+```javascript
 function Vue (options) {
   if (process.env.NODE_ENV !== 'production' &&
     !(this instanceof Vue)
@@ -172,7 +172,7 @@ function Vue (options) {
 
 Here we have a small demo from Vue's official document:
 
-```
+```javascript
 var app = new Vue({
   el: '#app',
   data: {
@@ -185,7 +185,7 @@ Now load them to your mind and let's begin the execution.
 
 First, we call `new Vue({...})`, which means:
 
-```
+```javascript
 options = {
   el: '#app',
   data: {
@@ -364,7 +364,7 @@ This function extracts providers in options and calls them on the component.
 
 Have you noticed the comments after `initInjections` and `initProvider`? It says:
 
-```
+```javascript
 initInjections(vm) // resolve injections before data/props
 initState(vm)
 initProvide(vm) // resolve provide after data/props
@@ -390,7 +390,7 @@ Read next chapter: [Dynamic Data - Observer, Dep and Watcher](https://github.com
 
 ## Practice
 
-```
+```javascript
 initInjections(vm) // resolve injections before data/props
 initState(vm)
 initProvide(vm) // resolve provide after data/props
