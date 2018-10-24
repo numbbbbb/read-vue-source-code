@@ -11,7 +11,31 @@ In this article, we will learn:
 
 We are inside `src/core/instance/index.js` now.
 
-![](http://i.imgur.com/vZvlbl8.jpg)
+```javascript
+import { initMixin } from './init'
+import { stateMixin } from './state'
+import { renderMixin } from './render'
+import { eventsMixin } from './events'
+import { lifecycleMixin } from './lifecycle'
+import { warn } from '../util/index'
+
+function Vue (options) {
+  if (process.env.NODE_ENV !== 'production' &&
+    !(this instanceof Vue)
+  ) {
+    warn('Vue is a constructor and should be called with the `new` keyword')
+  }
+  this._init(options)
+}
+
+initMixin(Vue)
+stateMixin(Vue)
+eventsMixin(Vue)
+lifecycleMixin(Vue)
+renderMixin(Vue)
+
+export default Vue
+```
 
 First, we will walk through those five mixins, find out what they do. Then we go into the `_init` function and see what happens when you execute `var app = new Vue({...})`.
 
@@ -31,7 +55,51 @@ This file defines:
 
 Open `./state,js`, this is a long file, search `statemixin`.
 
-![](http://i.imgur.com/ARnsKwC.jpg)
+```javascript
+export function stateMixin (Vue: Class<Component>) {
+  // flow somehow has problems with directly declared definition object
+  // when using Object.defineProperty, so we have to procedurally build up
+  // the object here.
+  const dataDef = {}
+  dataDef.get = function () { return this._data }
+  const propsDef = {}
+  propsDef.get = function () { return this._props }
+  if (process.env.NODE_ENV !== 'production') {
+    dataDef.set = function (newData: Object) {
+      warn(
+        'Avoid replacing instance root $data. ' +
+        'Use nested data properties instead.',
+        this
+      )
+    }
+    propsDef.set = function () {
+      warn(`$props is readonly.`, this)
+    }
+  }
+  Object.defineProperty(Vue.prototype, '$data', dataDef)
+  Object.defineProperty(Vue.prototype, '$props', propsDef)
+
+  Vue.prototype.$set = set
+  Vue.prototype.$delete = del
+
+  Vue.prototype.$watch = function (
+    expOrFn: string | Function,
+    cb: Function,
+    options?: Object
+  ): Function {
+    const vm: Component = this
+    options = options || {}
+    options.user = true
+    const watcher = new Watcher(vm, expOrFn, cb, options)
+    if (options.immediate) {
+      cb.call(vm, watcher.value)
+    }
+    return function unwatchFn () {
+      watcher.teardown()
+    }
+  }
+}
+```
 
 This function defines:
 
@@ -142,7 +210,16 @@ Then `this._init(options)`. Remember where `_init()` is defined? Yes, in `./init
 
 Now we focus on those init functions.
 
-![](http://i.imgur.com/Df5hU5k.jpg)
+```javascript
+initLifecycle(vm)
+initEvents(vm)
+initRender(vm)
+callHook(vm, 'beforeCreate')
+initInjections(vm) // resolve injections before data/props
+initState(vm)
+initProvide(vm) // resolve provide after data/props
+callHook(vm, 'created')
+```
 
 `callHook()` is easy to understand, it just calls your hook functions. Next, we will explain the other six init functions in detail.
 
@@ -184,11 +261,48 @@ Open `../observer/index.js` and search `defineReactive`.
 
 This function first defines `const dep = new Dep()`, does some validation, then extracts the getter and setter.
 
-![](http://i.imgur.com/CLwH8F0.jpg)
+```javascript
+let childOb = observe(val) // IMPORTANT
+Object.defineProperty(obj, key, {
+  enumerable: true,
+  configurable: true,
+  get: function reactiveGetter () {
+    const value = getter ? getter.call(obj) : val
+    if (Dep.target) {
+      dep.depend() // IMPORTANT
+      if (childOb) {
+        childOb.dep.depend() // IMPORTANT
+      }
+      if (Array.isArray(value)) {
+        dependArray(value)
+      }
+    }
+    return value
+  },
+  set: function reactiveSetter (newVal) {
+    const value = getter ? getter.call(obj) : val
+    /* eslint-disable no-self-compare */
+    if (newVal === value || (newVal !== newVal && value !== value)) {
+      return
+    }
+    /* eslint-enable no-self-compare */
+    if (process.env.NODE_ENV !== 'production' && customSetter) {
+      customSetter()
+    }
+    if (setter) {
+      setter.call(obj, newVal)
+    } else {
+      val = newVal
+    }
+    childOb = observe(newVal) // IMPORTANT
+    dep.notify() // IMPORTANT
+  }
+})
+```
 
 Next it defines `childOb = observe(val)`, set a new property to our component.
 
-I have marked the key parts in above image. Even if you haven't read the related code, you can tell how Vue do view updating while data changes. It just wraps value with getter and setter inside which it constructs dependency and sends notify.
+I have marked the key parts in comment. Even if you haven't read the related code, you can tell how Vue do view updating while data changes. It just wraps value with getter and setter inside which it constructs dependency and sends notify.
 
 This `defineReactive` function is used in many places, not only in initInjections, we will talk about `Observer`, `Dep` and `Watcher` in later articles, just go back to our initialization and go on.
 
@@ -196,7 +310,21 @@ This `defineReactive` function is used in many places, not only in initInjection
 
 It's located in `./state.js`.
 
-![](http://i.imgur.com/aHcHW8s.jpg)
+```javascript
+export function initState (vm: Component) {
+  vm._watchers = []
+  const opts = vm.$options
+  if (opts.props) initProps(vm, opts.props)
+  if (opts.methods) initMethods(vm, opts.methods)
+  if (opts.data) {
+    initData(vm)
+  } else {
+    observe(vm._data = {}, true /* asRootData */)
+  }
+  if (opts.computed) initComputed(vm, opts.computed)
+  if (opts.watch) initWatch(vm, opts.watch)
+}
+```
 
 Old friends again. Here we get our props, methods, data, computed properties and watch functions. Let's check them one by one.
 
