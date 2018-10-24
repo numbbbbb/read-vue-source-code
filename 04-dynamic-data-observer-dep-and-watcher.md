@@ -138,7 +138,7 @@ If this value is used as root data, it will increments `ob.vmCount++`, we have t
 
 Okay, now we have got or created the watcher. Next, `dependArray()`.
 
-```javscript
+```javascript
 /**
  * Collect dependencies on array elements when the array is touched, since
  * we cannot intercept array element access like property getters.
@@ -162,7 +162,7 @@ If you use `defineReactive()` to convert a property, that reactive property has 
 
 Let's read `Observer()` now.
 
-```javscript
+```javascript
 /**
  * Observer class that are attached to each observed
  * object. Once attached, the observer converts target
