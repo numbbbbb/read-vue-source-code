@@ -262,16 +262,16 @@ Open `../observer/index.js` and search `defineReactive`.
 This function first defines `const dep = new Dep()`, does some validation, then extracts the getter and setter.
 
 ```javascript
-let childOb = observe(val) // IMPORTANT
+let childOb = observe(val) // <-- IMPORTANT
 Object.defineProperty(obj, key, {
   enumerable: true,
   configurable: true,
   get: function reactiveGetter () {
     const value = getter ? getter.call(obj) : val
     if (Dep.target) {
-      dep.depend() // IMPORTANT
+      dep.depend() // <-- IMPORTANT
       if (childOb) {
-        childOb.dep.depend() // IMPORTANT
+        childOb.dep.depend() // <-- IMPORTANT
       }
       if (Array.isArray(value)) {
         dependArray(value)
@@ -294,8 +294,8 @@ Object.defineProperty(obj, key, {
     } else {
       val = newVal
     }
-    childOb = observe(newVal) // IMPORTANT
-    dep.notify() // IMPORTANT
+    childOb = observe(newVal) // <-- IMPORTANT
+    dep.notify() // <-- IMPORTANT
   }
 })
 ```
