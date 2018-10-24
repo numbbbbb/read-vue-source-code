@@ -12,7 +12,24 @@ In this article, we will learn:
 
 This article will focus on the compiler part.
 
-![](http://i.imgur.com/1wxPxQv.jpg)
+```javascript
+// `createCompilerCreator` allows creating compilers that use alternative
+// parser/optimizer/codegen, e.g the SSR optimizing compiler.
+// Here we just export a default compiler using the default parts.
+export const createCompiler = createCompilerCreator(function baseCompile (
+  template: string,
+  options: CompilerOptions
+): CompiledResult {
+  const ast = parse(template.trim(), options)
+  optimize(ast, options)
+  const code = generate(ast, options)
+  return {
+    ast,
+    render: code.render,
+    staticRenderFns: code.staticRenderFns
+  }
+})
+```
 
 According to the code of `baseCompile`, template is first converted to AST by `parse()`, then goes to `optimize()` and `generate()` to generate **render** and **staticRenderFns**.
 
@@ -44,13 +61,21 @@ git checkout master
 git pull
 git checkout v2.3.4
 npm install
+npm run build
 ```
 
 > The code on master branch is a little different from dev branch because dev is the latest version, some changes have not been merged into master.
 
 Then add one line to `baseCompiler()`:
 
-![](http://i.imgur.com/A8OzDGC.jpg)
+```javascript
+...
+const ast = parse(template.trim(), options)
+console.log(ast) // <-- ADD THIS LINE
+optimize(ast, options)
+const code = generate(ast, options)
+...
+```
 
 Here is a small demo written in `.vue` file:
 
@@ -139,7 +164,15 @@ After parsing, Vue uses the optimizer to extract static parts. Why? Because stat
 
 Default optimizer located at `compiler/optimizer.js`. It walks through the AST and finds out static parts. Same to the parser, we just treat it as a black box and see the output.
 
-![](http://i.imgur.com/15t0RpJ.jpg)
+```javascript
+...
+const ast = parse(template.trim(), options)
+console.log(ast) // <-- ADD THIS LINE
+optimize(ast, options)
+console.log(ast) // <-- ADD THIS LINE
+const code = generate(ast, options)
+...
+```
 
 Below is the output of the second `console.log()`:
 
@@ -205,7 +238,16 @@ The answer is––
 
 Generator located in `compiler/codegen/index.js`. Again, let's focus on the output.
 
-![](http://i.imgur.com/kE7Rv9H.jpg)
+```javascript
+...
+const ast = parse(template.trim(), options)
+console.log(ast) // <-- ADD THIS LINE
+optimize(ast, options)
+console.log(ast) // <-- ADD THIS LINE
+const code = generate(ast, options)
+console.log(code) // <-- ADD THIS LINE
+...
+```
 
 
 ```
