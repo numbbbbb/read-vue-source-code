@@ -17,7 +17,46 @@ First of all, we need to find functions related to render process.
 
 In [previous article](https://github.com/numbbbbb/read-vue-source-code/blob/master/05-dynamic-data-lazy-sync-and-queue.md), we have learned that `mountComponent()` will use `_update()` and `_render()` to update views. Let's do a global search to find `_update`.
 
-![](http://i.imgur.com/0YMdDxG.jpg)
+```javascript
+Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
+  const vm: Component = this
+  if (vm._isMounted) {
+    callHook(vm, 'beforeUpdate')
+  }
+  const prevEl = vm.$el
+  const prevVnode = vm._vnode
+  const prevActiveInstance = activeInstance
+  activeInstance = vm
+  vm._vnode = vnode
+  // Vue.prototype.__patch__ is injected in entry points
+  // based on the rendering backend used.
+  if (!prevVnode) {
+    // initial render
+    vm.$el = vm.__patch__(
+      vm.$el, vnode, hydrating, false /* removeOnly */,
+      vm.$options._parentElm,
+      vm.$options._refElm
+    )
+  } else {
+    // updates
+    vm.$el = vm.__patch__(prevVnode, vnode)
+  }
+  activeInstance = prevActiveInstance
+  // update __vue__ reference
+  if (prevEl) {
+    prevEl.__vue__ = null
+  }
+  if (vm.$el) {
+    vm.$el.__vue__ = vm
+  }
+  // if parent is an HOC, update its $el as well
+  if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+    vm.$parent.$el = vm.$el
+  }
+  // updated hook is called by the scheduler to ensure that children are
+  // updated in a parent's updated hook.
+}
+```
 
 `_update()` uses `__patch__()` to calculate which part needs updating and manipulate corresponding DOMs. We will talk about `__patch__()` later.
 
@@ -25,7 +64,37 @@ Go back to `mountComponent()`, our next target is `_render()`.
 
 We have seen `_render()` is defined in `core/instance/render.js`, let's look at it again.
 
-![](http://i.imgur.com/FPn36ty.jpg)
+```javascript
+Vue.prototype._render = function (): VNode {
+  const vm: Component = this
+  const {
+    render,  // <-- IMPORTANT
+    staticRenderFns,
+    _parentVnode
+  } = vm.$options // <-- IMPORTANT
+
+  if (vm._isMounted) {
+    // clone slot nodes on re-renders
+    for (const key in vm.$slots) {
+      vm.$slots[key] = cloneVNodes(vm.$slots[key])
+    }
+  }
+
+  vm.$scopedSlots = (_parentVnode && _parentVnode.data.scopedSlots) || emptyObject
+
+  if (staticRenderFns && !vm._staticTrees) {
+    vm._staticTrees = []
+  }
+  // set parent vnode. this allows render functions to have access
+  // to the data on the placeholder node.
+  vm.$vnode = _parentVnode
+  // render self
+  let vnode
+  try {
+    vnode = render.call(vm._renderProxy, vm.$createElement) // <-- IMPORTANT
+  } catch (e) {
+  ...
+```
 
 Inside `_render()`, it calls `render()` which is extracted from `vm.$options`.
 
@@ -49,6 +118,19 @@ Double click it.
 
 ![](http://i.imgur.com/wVMfCcr.jpg)
 
+Code:
+
+```javascript
+...
+const { render, staticRenderFns } = compileToFunctions(template, {
+  shouldDecodeNewlines,
+  delimiters: options.delimiters
+}, this)
+options.render = render
+options.staticRenderFns = staticRenderFns
+...
+```
+
 Cool! This is the outmost wrapper of `$mount()`, it calls `compileToFunctions()` with your `template`, gets `render` and `staticRenderFns` as return value and set it to `options.render`.
 
 Go on, `compileToFunctions()` comes from `./compiler/index.js`:
@@ -61,7 +143,24 @@ export { compile, compileToFunctions }
 
 `createCompiler()` comes from `compiler/index.js`:
 
-![](http://i.imgur.com/K8QIUHf.jpg)
+```javascript
+// `createCompilerCreator` allows creating compilers that use alternative
+// parser/optimizer/codegen, e.g the SSR optimizing compiler.
+// Here we just export a default compiler using the default parts.
+export const createCompiler = createCompilerCreator(function baseCompile (
+  template: string,
+  options: CompilerOptions
+): CompiledResult {
+  const ast = parse(template.trim(), options)
+  optimize(ast, options)
+  const code = generate(ast, options)
+  return {
+    ast,
+    render: code.render,
+    staticRenderFns: code.staticRenderFns
+  }
+})
+```
 
 `createCompilerCreator()`, good name! It's a high order function which creates the `createCompiler()` function which is used to create the compiler. Later our template will be compiled using this compiler.
 
