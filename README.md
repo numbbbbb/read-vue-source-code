@@ -1,5 +1,7 @@
 # Read Vue Source Code
 
+> [Russian Version](https://github.com/vvscode/tr--read-vue-source-code), thanks to [@vvscode](https://github.com/vvscode)!
+
 ## Why
 
 Imagine you find a new framework, let's say it's Vue. You Google the tutorials, build a HelloWorld project and start to use it in company projects.
