@@ -132,7 +132,7 @@ You must have used them for many times, just read the code and learn how to impl
 
 Open `lifecycle.js`, scroll down to find `lifecycleMixin`.
 
-This function dedines:
+This function defines:
 
 - `Vue.prototype._update()`, DOM updating happens here! Will be covered in later articles
 - `Vue.prototype.$forceUpdate()`
