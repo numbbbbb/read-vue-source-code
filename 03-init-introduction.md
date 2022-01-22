@@ -245,7 +245,7 @@ Here we meet VNode for the first time.
 
 What is VNode? It's used to build the VDom. VNode and VDom correspond to real Node and DOM. The reason Vue chose these two representations is performance. 
 
-When your data change, Vue needs to update the webpage. The simplest way is refreshing the whole page. But it costs a lot of browser resources and much of them are just wasted. Normally you just update a few properties, why not just update the parts that change? Thus Vue adds a layer of VNode and VDom between data and view, implements an algorithm to calculate the best DOM manipulation strategy and apply that to the DOM.
+When your data changes, Vue needs to update the webpage. The simplest way is refreshing the whole page. But it costs a lot of browser resources and much of them are just wasted. Normally you just update a few properties, why not just update the parts that change? Thus Vue adds a layer of VNode and VDom between data and view, implements an algorithm to calculate the best DOM manipulation strategy and apply that to the DOM.
 
 We will talk about render and update later.
 
