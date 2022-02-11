@@ -88,7 +88,7 @@ Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
 }
 ```
 
-`vm.__patch__()` is the key part. If this is a new node, it will initialize the DOM, otherwise, it will update the DOM. Both are implemented inside `vm.__patch__()` with the VNodes we got from `render()`.w43e
+`vm.__patch__()` is the key part. If this is a new node, it will initialize the DOM, otherwise, it will update the DOM. Both are implemented inside `vm.__patch__()` with the VNodes we got from `render()`.
 
 Now use the skills you learn from previous articles to find the definition of `__patch__()`. It's located in `platforms/web/runtime/patch.js`, created by `createPatchFunction({ nodeOps, modules })`.
 
@@ -205,7 +205,7 @@ Here we meet four `if-else` clauses:
 - if the old node and new node both have children and they are not equal: call `updateChildren()`
 - if only the new node has children: if old node has text, remove the text; call `addVnodes()` to add new node's children
 - if only old node has children: it means new node is empty, just call `removeVnodes()` to remove the old node
-- if old node and new node both dont't have children AND old node has text: if you go into this clause, it means new node doesn't has text(otherwise the outside if will fall into the `else` clause), so just call `setTextContent()` to remove the text
+- if old node and new node both don't have children AND old node has text: if you go into this clause, it means new node doesn't has text(otherwise the outside if will fall into the `else` clause), so just call `setTextContent()` to remove the text
 
 Feel free to pause and think for a while before going on.
 
